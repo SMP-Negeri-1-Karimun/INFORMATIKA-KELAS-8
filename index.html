@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian SAS Informatika Kelas 8</title>
+    <!-- Tailwind CSS untuk Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Sembunyikan scrollbar tapi tetap bisa di-scroll untuk navigasi grid */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col">
+
+    <!-- ========================================== -->
+    <!-- VIEW: LOGIN                                -->
+    <!-- ========================================== -->
+    <div id="view-login" class="flex-1 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden border-t-8 border-blue-600">
+            <div class="p-6 flex flex-col items-center border-b bg-slate-50">
+                <img src="https://i.ibb.co.com/TxwtMFDD/Screenshot-2024-08-29-125749.png" alt="Logo SMPN 1 Karimun" class="h-20 mb-3" />
+                <h1 class="text-xl font-bold text-center text-slate-800 animate-pulse">SUMATIF AKHIR SEMESTER GENAP</h1>
+                <p class="text-sm font-semibold text-blue-600">TAHUN PELAJARAN 2025/2026</p>
+                <p class="text-sm text-slate-600 mt-1 text-center font-semibold">SMP NEGERI 1 KARIMUN<br/>Bidang Studi: INFORMATIKA Kelas 8</p>
+            </div>
+            
+            <form id="form-login" class="p-6 space-y-4">
+                <div id="login-error" class="hidden p-3 bg-red-100 text-red-700 text-sm rounded-lg flex items-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i> <span id="login-error-text"></span>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap Siswa</label>
+                    <input type="text" id="input-nama" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none uppercase" placeholder="Ketik nama Anda..." />
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Jenis Kelamin</label>
+                        <select id="input-jk" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Pilih...</option>
+                            <option value="L">Laki-laki</option>
+                            <option value="P">Perempuan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Kelas</label>
+                        <select id="input-kelas" required class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Pilih...</option>
+                            <option value="8.1">8.1</option>
+                            <option value="8.2">8.2</option>
+                            <option value="8.3">8.3</option>
+                            <option value="8.4">8.4</option>
+                            <option value="8.5">8.5</option>
+                            <option value="8.6">8.6</option>
+                            <option value="8.7">8.7</option>
+                            <option value="8.8">8.8</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Token Ujian</label>
+                    <div class="relative">
+                        <i data-lucide="key-round" class="absolute left-3 top-3.5 text-slate-400 w-5 h-5"></i>
+                        <input type="text" id="input-token" required class="w-full pl-10 p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-mono font-bold text-blue-600" placeholder="Masukkan Token" />
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">Gunakan token: <strong>INF2026</strong></p>
+                </div>
+
+                <button type="submit" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                    Mulai Ujian <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW: EXAM                                 -->
+    <!-- ========================================== -->
+    <div id="view-exam" class="hidden flex-1 flex-col w-full h-full">
+        <!-- Header -->
+        <header class="bg-white border-b shadow-sm sticky top-0 z-10 px-4 py-3 flex justify-between items-center w-full">
+            <div class="flex items-center gap-3">
+                <img src="https://i.ibb.co.com/TxwtMFDD/Screenshot-2024-08-29-125749.png" alt="Logo" class="h-10" />
+                <div class="hidden sm:block">
+                    <h1 class="font-bold text-slate-800 leading-tight">SAS Informatika Kelas 8</h1>
+                    <p class="text-xs text-slate-500" id="header-student-info">Nama Siswa (Kelas)</p>
+                </div>
+            </div>
+            
+            <div id="header-cheat-alert" class="hidden bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 animate-pulse">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i> Curang: <span id="header-cheat-count">0</span>x
+            </div>
+
+            <button onclick="showConfirmModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 shadow-sm transition">
+                <i data-lucide="send" class="w-4 h-4"></i> <span class="hidden sm:inline">Kirim Jawaban</span>
+            </button>
+        </header>
+
+        <main class="flex-1 max-w-6xl w-full mx-auto p-4 flex flex-col md:flex-row gap-6">
+            
+            <!-- Left/Top Content: Question -->
+            <div class="flex-1 bg-white rounded-xl shadow-sm border p-6 flex flex-col relative h-full">
+                <div class="flex justify-between items-center mb-4 border-b pb-4">
+                    <h2 class="text-lg font-bold text-slate-800">Soal No. <span id="q-number">1</span> / 50</h2>
+                    <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-md font-semibold">Informatika</span>
+                </div>
+
+                <div class="flex-1 overflow-y-auto mb-6">
+                    <p id="q-text" class="text-slate-800 text-base leading-relaxed whitespace-pre-wrap font-medium">Teks Soal Disini</p>
+                    
+                    <div id="q-img-container" class="mt-4 mb-4 hidden">
+                        <img id="q-img" src="" alt="Gambar Soal" class="max-w-full h-auto max-h-64 rounded border shadow-sm object-contain" />
+                    </div>
+
+                    <div id="q-options" class="mt-6 space-y-3">
+                        <!-- Options akan dirender lewat JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Nav Buttons -->
+                <div class="flex justify-between mt-auto pt-4 border-t gap-2">
+                    <button id="btn-prev" onclick="changeQuestion(-1)" class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition bg-slate-200 text-slate-700 hover:bg-slate-300">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Sebelumnya
+                    </button>
+                    
+                    <button id="btn-next" onclick="changeQuestion(1)" class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white transition">
+                        Selanjutnya <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                    
+                    <button id="btn-submit-final" onclick="showConfirmModal()" class="hidden flex items-center gap-2 px-6 py-2 rounded-lg font-bold bg-green-600 hover:bg-green-700 text-white shadow-md transition">
+                        Kirim Jawaban <i data-lucide="send" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Content: Navigation Grid -->
+            <div class="w-full md:w-80 flex-shrink-0 bg-white rounded-xl shadow-sm border p-4 h-fit">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold flex items-center gap-2"><i data-lucide="layout-grid" class="w-4 h-4"></i> Navigasi Soal</h3>
+                    <span id="nav-answered-count" class="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded-md">0 / 50 Selesai</span>
+                </div>
+                
+                <div id="nav-grid" class="grid grid-cols-5 gap-2 max-h-96 overflow-y-auto pr-1 no-scrollbar">
+                    <!-- Grid Soal Akan di render via JavaScript -->
+                </div>
+
+                <div class="mt-6 pt-4 border-t flex flex-col gap-2">
+                    <div class="flex items-center gap-2 text-xs text-slate-600">
+                        <div class="w-4 h-4 bg-blue-600 rounded-sm"></div> Sudah Dijawab
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-slate-600">
+                        <div class="w-4 h-4 bg-white border border-slate-300 rounded-sm"></div> Belum Dijawab
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-slate-600">
+                        <div class="w-4 h-4 ring-2 ring-blue-500 rounded-sm"></div> Soal yang Sedang Dibuka
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW: SUBMITTING                           -->
+    <!-- ========================================== -->
+    <div id="view-submitting" class="hidden flex-1 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-xl shadow text-center flex flex-col items-center max-w-sm border">
+            <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <h2 class="text-xl font-bold">Mengirim Jawaban...</h2>
+            <p class="text-slate-500 text-xs mt-2 leading-relaxed">
+                Sistem sedang mencoba mengirim data lewat jalur aman agar tersimpan di Google Spreadsheet. Harap tunggu sebentar...
+            </p>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW: SUCCESS                              -->
+    <!-- ========================================== -->
+    <div id="view-success" class="hidden flex-1 flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-xl shadow-xl max-w-md w-full text-center border-t-8 border-green-500">
+            <i data-lucide="check-circle-2" class="w-20 h-20 text-green-500 mx-auto mb-4 animate-bounce"></i>
+            <h2 class="text-2xl font-bold text-slate-800">Ujian Selesai!</h2>
+            <p class="text-slate-600 mt-2 text-sm font-semibold text-green-600">Jawaban Anda berhasil dikirim dan tersimpan dengan aman.</p>
+            <div class="mt-6 p-4 bg-slate-50 rounded-lg border text-left text-sm space-y-1">
+                <p><strong>Nama:</strong> <span id="success-nama"></span></p>
+                <p><strong>Kelas:</strong> <span id="success-kelas"></span></p>
+                <p class="text-slate-500 font-medium italic pt-3 border-t mt-3 text-center">Evaluasi dan Nilai Akhir akan diumumkan oleh Guru.</p>
+            </div>
+            <p class="mt-4 text-xs text-slate-400">Anda dapat menutup tab browser ini dengan aman.</p>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW: ERROR/BACKUP MANUAL                  -->
+    <!-- ========================================== -->
+    <div id="view-error" class="hidden flex-1 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border-t-8 border-yellow-500">
+            <i data-lucide="alert-triangle" class="w-16 h-16 text-yellow-500 mx-auto mb-3"></i>
+            <h2 class="text-xl font-bold text-slate-800 text-center">Koneksi Internet Bermasalah</h2>
+            <p class="text-slate-600 text-sm mt-2 text-center">
+                Aplikasi gagal menghubungi server spreadsheet karena koneksi internet terputus atau tidak stabil.
+            </p>
+            <p class="text-slate-700 text-sm font-semibold mt-4 mb-2">
+                Silakan SALIN kode jawaban cadangan di bawah ini dan kirimkan ke GURU Anda (lewat WhatsApp/Email):
+            </p>
+            
+            <textarea id="backup-textarea" readonly class="w-full h-32 p-3 bg-slate-50 border rounded-lg font-mono text-xs text-slate-700 select-all outline-none"></textarea>
+            
+            <button onclick="copyBackup()" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 transition">
+                <i data-lucide="copy" class="w-5 h-5"></i> <span id="copy-btn-text">Salin Kode Jawaban</span>
+            </button>
+
+            <button onclick="showView('exam')" class="w-full mt-2 text-slate-500 hover:text-slate-700 text-sm font-medium transition py-1">
+                Kembali ke Lembar Soal & Coba Lagi
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODALS KUSTOM                              -->
+    <!-- ========================================== -->
+    <!-- Modal Konfirmasi -->
+    <div id="modal-confirm" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Konfirmasi Kirim</h3>
+            <div id="modal-confirm-body" class="text-slate-600 text-sm mb-6">
+                <!-- Diisi via JS -->
+            </div>
+            <div class="flex justify-end gap-3">
+                <button onclick="hideConfirmModal()" class="px-4 py-2 font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">Batal</button>
+                <button onclick="processSubmit()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-md transition flex items-center gap-2">
+                    Ya, Kirim <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Peringatan Kecurangan -->
+    <div id="modal-cheat" class="hidden fixed inset-0 bg-red-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl text-center border-t-8 border-red-500">
+            <i data-lucide="alert-triangle" class="w-16 h-16 text-red-500 mx-auto mb-3"></i>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Pelanggaran Terdeteksi!</h3>
+            <p id="modal-cheat-msg" class="text-slate-600 text-sm mb-6 whitespace-pre-wrap"></p>
+            <button onclick="hideCheatModal()" class="w-full px-4 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-bold shadow-md transition">
+                Saya Mengerti
+            </button>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT APP LOGIC                       -->
+    <!-- ========================================== -->
+    <script>
+        // INISIALISASI ICON LUCIDE
+        lucide.createIcons();
+
+        // KONFIGURASI
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypBSV9Xph7Mo5MX8S5VfOHbiiVnHkG1vg0GBD0C8VkXrvAdZcY3tJBXwFu-j5F1v0W/exec"; 
+        const TOKEN_AKTIF = "INF2026";
+        const POIN_BENAR = 2;
+        const POIN_CURANG_MINUS = 2;
+        const STORAGE_KEY = 'ujian_state_html_v1';
+
+        // DATA SOAL (50 Soal)
+        const questionsData = [
+            { id: 1, text: "SMP Negeri 1 Karimun memiliki laboratorium Komputer dengan 32 unit Komputer. Semua komputer terhubung menggunakan kabel UTP ke sebuah switch. Switch tersebut terhubung ke router yang mengakses internet melalui modem fiber optik. Seluruh komputer dapat berbagi printer dan mengakses sistem pembelajaran daring sekolah.\nJenis jaringan yang digunakan dilaboratorium tersebut adalah ….", options: ["WAN", "MAN", "PAN", "LAN"], answer: 3 },
+            { id: 2, text: "Pada jaringan lokal jika ingin menghubungkan lebih dari dua perangkat dalam suatu jaringan dibutuhkan perangkat tambahan yaitu switch and router.\nPernyataan yang tepat dari switch dan router adalah ….", options: ["Switch dapat menghubungkan ke jaringan yang berbeda", "Router berfungsi sebagai alat pencetak", "Router dapat menghubungkan perangkat dari dua jaringan berbeda", "Switch berfungsi sebagai software pencari data"], answer: 2 },
+            { id: 3, text: "Perhatikan gambar berikut!\nJumlah switch/router pada konfigurasi jaringan komputer tersebut adalah ….", img: "https://i.ibb.co.com/39w7Mjkh/Screenshot-2026-06-09-081811.png", options: ["2", "3", "4", "5"], answer: 2 },
+            { id: 4, text: "Berdasarkan konfigurasi/gambar pada soal sebelumnya, node yang menunjukkan letak perangkat/komputer adalah ….", img: "https://i.ibb.co.com/39w7Mjkh/Screenshot-2026-06-09-081811.png", options: ["3, 4 dan 8", "0, 1 dan 2", "1, 6 dan 8", "2, 5 dan 7"], answer: 0 },
+            { id: 5, text: "Berikut pernyataan yang tepat dari routing adalah ….", options: ["Routing adalah aktivitas pemblokiran web berbahaya", "Routing adalah proses menghubungkan komputer berkabel", "Routing adalah infrastruktur yang memfasilitasi komunikasi nirkabel", "Routing adalah mekanisme pengiriman data dari suatu perangkat ke perangkat lain"], answer: 3 },
+            { id: 6, text: "Diberikan gambar routing pada jaringan komputer.\nJalur terbaik yang dilalui, ketika akan mengirimkan data dari komputer B ke komputer D adalah ….", img: "https://i.ibb.co.com/b5dS9Lrz/Screenshot-2026-06-09-082901.png", options: ["Komputer B – Router 1 – Router 4 – Komputer D", "Komputer B – Router 3 – Router 4 – Komputer D", "Komputer B – Router 1 – Router 2 – Komputer D", "Komputer B – Router 2 – Router 4 – Komputer D"], answer: 0 },
+            { id: 7, text: "Perhatikan konfigurasi lokasi ponsel dan Base Transceiver Station berikut.\nPernyataan yang benar berdasarkan gambar konfigurasi lokasi ponsel dan Base Transceiver Station tersebut adalah ….", img: "https://i.ibb.co.com/kN7s4L1/Screenshot-2026-06-09-083807.png", options: ["HP 1 akan mendapatkan sinyal kuat dari BTS B", "HP 3 akan mendapatkan sinyal kuat dari BTS C", "HP 4 akan mendapatkan sinyal kuat dari BTS D", "HP 6 akan mendapatkan sinyal kuat dari BTS C"], answer: 2 },
+            { id: 8, text: "Sekolah A menyediakan akses WiFi gratis untuk murid. Untuk dapat mengakses jaringan tersebut, murid harus memasukkan username dan password masing-masing. Pihak sekolah juga memasang sistem keamanan agar hanya pengguna terdaftar yang bisa terhubung. Namun, beberapa murid sering membagikan password mereka kepada teman.\nTujuan penggunaan username dan password pada jaringan sekolah adalah …", options: ["Mempercepat koneksi internet", "Membatasi akses agar hanya pengguna terdaftar yang dapat masuk", "Mengurangi jumlah perangkat", "Menghemat biaya listrik"], answer: 1 },
+            { id: 9, text: "Doni menerima pesan melalui email yang mengatasnamakan bank. Pesan tersebut meminta doni memasukkan nomor rekening dan password melalui tautan yang tersedia. Setelah diperiksa, alamat email pengirim terlihat mencurigakan dan bukan alamat resmi bank. Peristiwa tersebut terindikasi dalam sebuah percobaan Phishing.\nBerdasarkan wacana tersebut, pernyataan yang benar mengenai phising adalah ….", options: ["Phishing adalah metode pencurian online", "Phishing adalah pembelajaran yang dilakukan secara daring", "Phishing adalah metode untuk melakukan penipuan dengan mencuri data pengguna", "Phishing adalah pembatasan akses terhadap website yang tidak layak"], answer: 2 },
+            { id: 10, text: "Sekolah B mengadakan kampanye “internet positif”. Dalam kegiatan tersebut dijelaskan bahwa internet dapat digunakan untuk belajar, mencari referensi, mengikuti kursus daring dan berkomunikasi. Namun, murid juga diingatkan agar tidak mengakses konten negative seperti hoaks, ujaran kebencian atau konten tidak sesuai usia. Sekolah juga menekankan pentingnya etika digital dan tanggung jawab saat berkomentar di media sosial.\nContoh penggunaan internet positif sesuai dengan wacana tersebut adalah ….", options: ["Menyebarkan berita tanpa mengecek kebenarannya", "Mengikuti kursus daring untuk menambah pengetahuan", "Mengunggah komentar kasar", "Membagikan konten sensasional"], answer: 1 },
+            { id: 11, text: "Cara mengetahui suatu website aman dan terproteksi dengan baik adalah ….", options: ["Terdapat tanda seru (!) pada alamat URL", "Muncul gambar internet positif pada website yang dibuka", "Muncul peringatan 'the site ahead contains malware'", "Terdapat ikon kunci/gembok disebelah alamat URL"], answer: 3 },
+            { id: 12, text: "Kepanjangan dari e-banking adalah….", options: ["Electronic buying", "Electronic banking", "Electronic billing", "Electronic booking"], answer: 1 },
+            { id: 13, text: "Contoh aktivitas komunikasi data dalam penggunaan ponsel adalah…..", options: ["Mengirim SMS", "Melakukan panggilan suara", "Mengakses internet", "Semua jawaban benar"], answer: 3 },
+            { id: 14, text: "Fungsi utama CCTV adalah…….", options: ["Menyiarkan siaran televise secara public", "Mengamankan dan memantau suatu area", "Mengganti system komunikasi radio", "Meningkatkan kualitas sinyal internet"], answer: 1 },
+            { id: 15, text: "Untuk menjaga keamanan dalam tethering Wifi, pengguna dapat mengamankan hotspot dengan…….", options: ["Firewell", "VPN", "Kata sandi atau PIN", "Proxy"], answer: 2 },
+            { id: 16, text: "Seorang petugas perpustakaan sekolah menyimpan data anggota dalam sebuah spreadsheet.\nPetugas ingin mencari data murid secara cepat berdasarkan nomor anggota tanpa harus melihat seluruh tabel satu per satu.\nFungsi spreadsheet yang paling tepat digunakan untuk mencari nama murid berdasarkan nomor anggota adalah ....", img: "https://i.ibb.co.com/kg4pXy20/Screenshot-2026-06-09-084320.png", options: ["COUNTIF", "SUMIF", "LOOKUP", "AVERAGE"], answer: 2 },
+            { id: 17, text: "Keuntungan menggunakan fungsi LOOKUP dibanding mencari secara manual adalah ....", options: ["Mengubah data secara otomatis", "Mempercepat pencarian data pada tabel besar", "Menambah jumlah data", "Membuat grafik"], answer: 1 },
+            { id: 18, text: "Tampilan spreadsheet jika nomor anggota yang dicari tidak ada dalam tabel adalah …..", options: ["Menampilkan data anggota lain", "Menampilkan pesan kesalahan atau data tidak ditemukan", "Menghapus data lain", "Menutup program"], answer: 1 },
+            { id: 19, text: "Guru Informatika membuat daftar nilai murid pada lembar kerja elektronik. Saat membuat laporan, guru ingin mengambil nilai dari sel tertentu tanpa mengetik ulang data tersebut. Guru menggunakan fungsi reference sehingga ketika nilai pada tabel utama berubah, laporan juga akan berubah secara otomatis.\nTujuan penggunaan Fungsi reference adalah ....", options: ["Menghapus data ganda", "Mengambil data dari lokasi tertentu pada spreadsheet", "Membuat grafik otomatis", "Mengurutkan data"], answer: 1 },
+            { id: 20, text: "Keuntungan utama penggunaan referensi dibanding mengetik ulang data adalah ....", options: ["Data menjadi lebih panjang", "Mengurangi risiko kesalahan penyalinan data", "Menambah jumlah murid", "Mengubah format tabel"], answer: 1 },
+            { id: 21, text: "Pernyataan yang tepat dari penggunaan fungsi referense adalah ....", options: ["Referensi mempercepat pengolahan data dan meningkatkan ketelitian", "Referensi hanya digunakan untuk membuat grafik", "Referensi menggantikan fungsi LOOKUP", "Referensi menghapus semua data"], answer: 0 },
+            { id: 22, text: "OSIS melakukan survei ekstrakurikuler favorit murid. Data tersebut akan ditampilkan dalam bentuk grafik agar mudah dipahami oleh murid dan guru.\nTujuan utama visualisasi data adalah ....", img: "https://i.ibb.co.com/XrzPrNQs/Screenshot-2026-06-09-084958.png", options: ["Menyembunyikan data", "Mempermudah memahami informasi", "Mengurangi jumlah data", "Menambah data"], answer: 1 },
+            { id: 23, text: "Jenis grafik yang paling tepat untuk membandingkan jumlah peserta tiap ekstrakurikuler adalah ....", options: ["Diagram batang", "Diagram garis", "Diagram alur", "Peta konsep"], answer: 0 },
+            { id: 24, text: "Manfaat visualisasi data bagi pengambil keputusan adalah ....", options: ["Membantu menemukan pola dan kecenderungan data", "Menghapus data yang tidak penting", "Mengurangi jumlah responden", "Menggantikan survey"], answer: 0 },
+            { id: 25, text: "Koperasi sekolah mencatat penjualan alat tulis selama satu minggu. Pengelola koperasi ingin mengetahui jumlah barang yang termasuk kategori tertentu dan total penjualannya.\nFungsi yang tepat untuk menghitung jumlah data berdasarkan kriteria tertentu adalah ....", img: "https://i.ibb.co.com/TqFVp7SL/Screenshot-2026-06-09-111756.png", options: ["LOOKUP", "COUNTIF", "SUM", "AVERAGE"], answer: 1 },
+            { id: 26, text: "Fungsi yang tepat untuk menjumlahkan seluruh penjualan kategori 'Alat Tulis' adalah ....", options: ["SUMIF", "COUNTIF", "LOOKUP", "MAX"], answer: 0 },
+            { id: 27, text: "Alasan pentingnya fungsi SUMIF dan COUNTIF dalam analisis data adalah ….", options: ["Karena dapat mengolah data berdasarkan kriteria tertentu secara cepat dan akurat", "Karena dapat menggambar grafik otomatis", "Karena dapat mengganti semua rumus lain", "Karena hanya digunakan untuk tabel kecil"], answer: 0 },
+            { id: 28, text: "Perannya yang memungkinkan penggunanya untuk berkreasi, menulis ide dan ekspresi, serta membagikan infromasi tersebut dalam komunitas virtual hingga bermedia sosial disebut………", options: ["Media interaktif", "Dunia maya", "Komunitas virtual", "Dunia virtual"], answer: 1 },
+            { id: 29, text: "Untuk dapat mengunduh aplikasi media social diperlukan layanan penyedia unduhan berikut, kecuali …….", options: ["Google images", "Google Play Store", "Apple App Store", "Microsoft Store"], answer: 0 },
+            { id: 30, text: "Dibawah ini merupakan pernyataan yang benar tentang bullying, kecuali ………", options: ["Hanya bisa terjadi di dunia maya", "Dapat terjadi bersamaan dengan cyberbullying", "Dapat dijadikan barang bukti ke pihak yang berwajib", "Tidak ada batasan tempat dan waktu terjadinya"], answer: 0 },
+            { id: 31, text: "Perundungan di dunia maya disebut……..", options: ["Bullying", "Cyberbullying", "Trolling", "phising"], answer: 1 },
+            { id: 32, text: "Pengiriman pesan yang mengancam atau menjengkelkan di jejaring social,ruang obrolan, atau online game adalah………", options: ["Cyberbullying", "Fake news", "Bullying", "Trolling"], answer: 3 },
+            { id: 33, text: "Membuat akun palsu untuk melakukan kejahatan ke pengguna lain merupakan dampak negatif penggunaan media social dalam bentuk……….", options: ["Mengganggu kesehatan mental", "Pencurian data", "Penyebaran berita palsu", "Kecanduan media social"], answer: 1 },
+            { id: 34, text: "Nadia menggunakan beberapa aplikasi digital setiap hari. Ia menggunakan WhatsApp untuk bertukar pesan dengan teman sekelas... Berdasarkan wacana, WhatsApp termasuk kategori media sosial yang berfungsi untuk ....", options: ["Berbagi video public", "Jejaring professional", "Komunikasi dan pesan instan", "Blog pribadi"], answer: 2 },
+            { id: 35, text: "Sekolah Garuda membuat akun media sosial resmi untuk membagikan informasi lomba, jadwal kegiatan, dan prestasi murid. Manfaat media sosial yang terlihat pada wacana adalah ....", options: ["Penyebaran informasi lebih cepat", "Mengurangi komunikasi", "Menghilangkan kegiatan sekolah", "Membatasi akses informasi"], answer: 0 },
+            { id: 36, text: "Dampak positif media sosial terhadap sekolah adalah ....", options: ["Menyebarkan hoaks", "Mempermudah komunikasi dan publikasi informasi", "Mengurangi prestasi murid", "Menghambat pembelajaran"], answer: 1 },
+            { id: 37, text: "Rian sering menggunakan media sosial hingga larut malam. Akibatnya, ia sering mengantuk saat pelajaran dan nilai tugasnya menurun. Masalah utama yang dialami Rian adalah ....", options: ["Penggunaan media sosial yang berlebihan", "Kurangnya perangkat elektronik", "Tidak memiliki akun media social", "Terlalu banyak membaca buku"], answer: 0 },
+            { id: 38, text: "Dampak sosial yang muncul ketika menggunakan media sosial secara berlebihan adalah ....", options: ["Hubungan dengan teman semakin baik", "Interaksi langsung berkurang", "Banyak teman baru di sekolah", "Komunikasi menjadi lebih efektif"], answer: 1 },
+            { id: 39, text: "Seorang murid menerima pesan berantai bahwa sekolah diliburkan. Pesan tidak mencantumkan sumber resmi. Sebelum membagikannya, ia memeriksa situs resmi sekolah. Tindakan yang ditunjukkan oleh murid tersebut adalah ....", options: ["Kepanikan", "Literasi digital yang baik", "Penyebaran hoaks", "Ketidakpedulian"], answer: 1 },
+            { id: 40, text: "Salah satu dampak positif utama dari penggunaan media sosial adalah mempermudah komunikasi dan interaksi tanpa dibatasi oleh jarak. Namun, bagaimana media sosial dapat mempengaruhi pola interaksi sosial seseorang di kehidupan nyata (dunia nyata)?", options: ["Meningkatkan kemampuan seseorang untuk berbicara di depan umum secara otomatis.", "Mengurangi interaksi tatap muka yang mendalam karena kecenderungan sibuk dengan gawai (phubbing).", "Selalu membuat hubungan pertemanan menjadi lebih harmonis dan akrab.", "Membuat seseorang lebih mudah beradaptasi dengan lingkungan baru."], answer: 1 },
+            { id: 41, text: "Sering melihat kehidupan orang lain yang terlihat sempurna di media sosial sering kali memicu fenomena psikologis yang disebut FOMO (Fear of Missing Out). Apa dampak negatif utama dari fenomena ini terhadap kesehatan mental penggunanya?", options: ["Mendorong pengguna untuk terus belajar hal-hal baru di internet.", "Meningkatkan kreativitas dalam memproduksi konten.", "Memicu kecemasan, rasa rendah diri (insecure), dan stres berlebih.", "Memperluas jaringan pertemanan secara global."], answer: 2 },
+            { id: 42, text: "Media sosial yang termasuk kategori jejaring sosial (social network) adalah ....", options: ["Instagram", "Facebook", "Twitter", "Youtube"], answer: 1 },
+            { id: 43, text: "Berikut merupakan panduan bijak dalam bermedia sosial, kecuali ....", options: ["Selektif dalam berteman", "Mengatur pengaturan privasi akun", "Mengumbar kehidupan pribadi secara detail", "Menampilkan karya-karya positif"], answer: 2 },
+            { id: 44, text: "Berikut ini ciri-ciri utama dari media sosial, kecuali ........", options: ["Dapat diakses oleh siapa saja dengan mudah", "Konten sepenuhnya berasal dari pengguna (user-generated)", "Tidak dapat berinteraksi secara interaktif dengan pengguna lain", "Memiliki halaman profil khusus untuk pengguna"], answer: 2 },
+            { id: 45, text: "Seseorang yang memiliki kemampuan untuk memahami, mengevaluasi, dan menggunakan informasi dari berbagai sumber digital secara bijak dan bertanggung jawab disebut memiliki ....", options: ["Literasi keuangan", "Literasi digital", "Literasi sains", "Literasi membaca"], answer: 1 },
+            { id: 46, text: "Salah satu etika yang penting saat berkomunikasi di ruang digital (netiket) adalah ....", options: ["Bebas menulis komentar apa saja termasuk kata kasar", "Menghargai privasi dan waktu orang lain", "Menyebarkan pesan berantai tanpa memeriksa kebenarannya", "Menggunakan huruf kapital pada semua kalimat agar jelas"], answer: 1 },
+            { id: 47, text: "Saat menemukan informasi di internet yang belum jelas kebenarannya, tindakan terbaik yang harus kita lakukan adalah ....", options: ["Langsung membagikannya ke grup keluarga agar semua tahu", "Mengabaikannya saja tanpa peduli", "Melakukan verifikasi dan mencari sumber terpercaya (tabayyun)", "Menganggap informasi tersebut pasti benar karena ada gambarnya"], answer: 2 },
+            { id: 48, text: "Kejahatan dunia maya yang dilakukan dengan cara meretas sistem komputer atau website milik orang lain tanpa izin disebut ....", options: ["Hacking", "Phishing", "Carding", "Cyberstalking"], answer: 0 },
+            { id: 49, text: "Berikut ini yang merupakan dampak positif dari penggunaan teknologi informasi dan komunikasi di bidang pendidikan adalah ....", options: ["Meningkatnya kasus plagiarisme di kalangan pelajar", "Berkurangnya waktu belajar tatap muka secara langsung", "Kemudahan dalam mengakses sumber belajar digital dan e-learning", "Munculnya kecanduan bermain game online"], answer: 2 },
+            { id: 50, text: "Untuk melindungi keamanan akun media sosial kita agar tidak mudah diretas oleh orang lain, tindakan pencegahan terbaik adalah ....", options: ["Menggunakan kata sandi yang mudah ditebak seperti tanggal lahir", "Membagikan kata sandi kepada teman dekat agar aman", "Mengaktifkan Autentikasi Dua Faktor (2FA) dan menggunakan kata sandi yang kuat", "Jarang mengganti kata sandi sejak pertama kali mendaftar"], answer: 2 }
+        ];
+
+        // STATE APLIKASI
+        let appState = 'login'; // login, exam, submitting, success, error_backup
+        let studentData = { nama: '', jk: '', kelas: '', token: '' };
+        let currentQ = 0;
+        let answers = {};
+        let cheatCount = 0;
+        let backupData = '';
+
+        // FUNGSI NAVIGASI VIEW
+        function showView(viewId) {
+            appState = viewId.replace('view-', '');
+            const views = ['view-login', 'view-exam', 'view-submitting', 'view-success', 'view-error'];
+            views.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+                document.getElementById(id).classList.remove('flex');
+            });
+            
+            const activeView = document.getElementById(viewId);
+            activeView.classList.remove('hidden');
+            
+            if(viewId === 'view-login' || viewId === 'view-submitting' || viewId === 'view-success' || viewId === 'view-error') {
+                activeView.classList.add('flex');
+            } else if (viewId === 'view-exam') {
+                activeView.classList.add('flex');
+                renderExamUI();
+            }
+
+            if(appState === 'exam') saveProgress();
+        }
+
+        // SISTEM PENYIMPANAN LOKAL
+        function saveProgress() {
+            if(appState !== 'exam') return;
+            const data = { appState, studentData, answers, cheatCount, currentQ };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function loadProgress() {
+            const savedState = localStorage.getItem(STORAGE_KEY);
+            if (savedState) {
+                const data = JSON.parse(savedState);
+                if (data.appState === 'exam') {
+                    studentData = data.studentData;
+                    answers = data.answers || {};
+                    cheatCount = data.cheatCount || 0;
+                    currentQ = data.currentQ || 0;
+                    showView('view-exam');
+                }
+            }
+        }
+
+        // LOGIN HANDLER
+        document.getElementById('form-login').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nama = document.getElementById('input-nama').value.trim().toUpperCase();
+            const jk = document.getElementById('input-jk').value;
+            const kelas = document.getElementById('input-kelas').value;
+            const token = document.getElementById('input-token').value.trim();
+
+            const errContainer = document.getElementById('login-error');
+            const errText = document.getElementById('login-error-text');
+
+            if (token !== TOKEN_AKTIF) {
+                errText.innerText = "Token Ujian tidak valid!";
+                errContainer.classList.remove('hidden');
+                return;
+            }
+            if (!nama || !jk || !kelas) {
+                errText.innerText = "Harap isi semua data dengan lengkap!";
+                errContainer.classList.remove('hidden');
+                return;
+            }
+            
+            errContainer.classList.add('hidden');
+            studentData = { nama, jk, kelas, token };
+            showView('view-exam');
+        });
+
+        // ==========================================
+        // EXAM UI RENDER LOGIC
+        // ==========================================
+        function renderExamUI() {
+            // Render Header Info
+            document.getElementById('header-student-info').innerText = `${studentData.nama} (${studentData.kelas})`;
+            updateCheatUI();
+            
+            // Render Soal dan Navigasi
+            renderQuestion();
+            renderNavGrid();
+        }
+
+        function updateCheatUI() {
+            const cheatEl = document.getElementById('header-cheat-alert');
+            const cheatCountEl = document.getElementById('header-cheat-count');
+            if(cheatCount > 0) {
+                cheatCountEl.innerText = cheatCount;
+                cheatEl.classList.remove('hidden');
+            } else {
+                cheatEl.classList.add('hidden');
+            }
+        }
+
+        function changeQuestion(step) {
+            let newQ = currentQ + step;
+            if (newQ >= 0 && newQ < questionsData.length) {
+                currentQ = newQ;
+                renderQuestion();
+                renderNavGrid();
+                saveProgress();
+            }
+        }
+
+        function selectAnswer(qIndex, optIndex) {
+            answers[qIndex] = optIndex;
+            saveProgress();
+            renderQuestion(); // Re-render to show selection
+            renderNavGrid();  // Re-render to show answered status
+        }
+
+        function renderQuestion() {
+            const q = questionsData[currentQ];
+            document.getElementById('q-number').innerText = currentQ + 1;
+            document.getElementById('q-text').innerText = q.text;
+
+            const imgContainer = document.getElementById('q-img-container');
+            const imgEl = document.getElementById('q-img');
+            if (q.img) {
+                imgEl.src = q.img;
+                imgContainer.classList.remove('hidden');
+            } else {
+                imgContainer.classList.add('hidden');
+            }
+
+            // Render Options
+            const optionsContainer = document.getElementById('q-options');
+            optionsContainer.innerHTML = ''; // Clear old
+
+            q.options.forEach((opt, idx) => {
+                const char = String.fromCharCode(65 + idx); // A, B, C, D
+                const isSelected = answers[currentQ] === idx;
+                
+                const label = document.createElement('label');
+                label.className = `flex items-start p-3 rounded-lg border-2 cursor-pointer transition-all ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-blue-300 bg-white'}`;
+                
+                label.innerHTML = `
+                    <div class="flex-shrink-0 mt-0.5">
+                        <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center text-sm font-bold ${isSelected ? 'border-blue-500 text-blue-600 bg-blue-100' : 'border-slate-300 text-slate-400'}">
+                            ${char}
+                        </div>
+                    </div>
+                    <div class="ml-3 text-slate-700 font-medium">${opt}</div>
+                    <input type="radio" name="question-${currentQ}" value="${idx}" class="hidden" ${isSelected ? 'checked' : ''}>
+                `;
+                
+                label.onclick = (e) => {
+                    e.preventDefault(); // Prevent double triggering
+                    selectAnswer(currentQ, idx);
+                };
+
+                optionsContainer.appendChild(label);
+            });
+
+            // Nav Buttons State
+            const btnPrev = document.getElementById('btn-prev');
+            const btnNext = document.getElementById('btn-next');
+            const btnSubmit = document.getElementById('btn-submit-final');
+
+            if (currentQ === 0) {
+                btnPrev.disabled = true;
+                btnPrev.className = 'flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition bg-slate-100 text-slate-400 cursor-not-allowed border';
+            } else {
+                btnPrev.disabled = false;
+                btnPrev.className = 'flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition bg-slate-200 text-slate-700 hover:bg-slate-300';
+            }
+
+            if (currentQ === questionsData.length - 1) {
+                btnNext.classList.add('hidden');
+                btnSubmit.classList.remove('hidden');
+            } else {
+                btnNext.classList.remove('hidden');
+                btnSubmit.classList.add('hidden');
+            }
+        }
+
+        function renderNavGrid() {
+            const gridContainer = document.getElementById('nav-grid');
+            gridContainer.innerHTML = ''; // Clear
+
+            let answeredCount = Object.keys(answers).length;
+            document.getElementById('nav-answered-count').innerText = `${answeredCount} / ${questionsData.length} Selesai`;
+
+            questionsData.forEach((q, idx) => {
+                const status = answers[idx] !== undefined ? 'answered' : 'empty';
+                const isActive = currentQ === idx;
+                
+                let btnClass = "h-10 rounded text-sm font-bold border transition-all flex items-center justify-center cursor-pointer ";
+                
+                if (isActive) {
+                    btnClass += "ring-2 ring-offset-2 ring-blue-500 ";
+                }
+
+                if (status === 'answered') {
+                    btnClass += "bg-blue-600 text-white border-blue-600";
+                } else {
+                    btnClass += "bg-white text-slate-600 border-slate-300 hover:bg-slate-100";
+                }
+
+                const btn = document.createElement('button');
+                btn.className = btnClass;
+                btn.innerText = idx + 1;
+                btn.onclick = () => {
+                    currentQ = idx;
+                    renderQuestion();
+                    renderNavGrid();
+                    saveProgress();
+                };
+
+                gridContainer.appendChild(btn);
+            });
+        }
+
+        // ==========================================
+        // ANTI-CHEAT DETECTION
+        // ==========================================
+        document.addEventListener("visibilitychange", () => {
+            if (appState !== 'exam') return;
+            if (document.hidden) {
+                cheatCount++;
+                saveProgress();
+                updateCheatUI();
+                showCheatModal(`PERINGATAN KECURANGAN!\n\nAnda terdeteksi berpindah aplikasi/layar/tab.\nPoin Anda otomatis dikurangi ${POIN_CURANG_MINUS} poin per pelanggaran.`);
+            }
+        });
+
+        // ==========================================
+        // MODAL LOGIC
+        // ==========================================
+        function showConfirmModal() {
+            const unansweredCount = questionsData.length - Object.keys(answers).length;
+            const bodyHtml = document.getElementById('modal-confirm-body');
+            
+            if (unansweredCount > 0) {
+                bodyHtml.innerHTML = `
+                    <div class="bg-amber-50 text-amber-800 p-3 rounded border border-amber-200">
+                        <span class="font-bold">Perhatian:</span> Masih ada <strong class="text-red-600">${unansweredCount} soal</strong> yang belum Anda jawab. Apakah Anda tetap ingin mengirim?
+                    </div>`;
+            } else {
+                bodyHtml.innerHTML = `Apakah Anda yakin semua jawaban sudah benar? Data tidak dapat diubah setelah dikirim.`;
+            }
+            
+            document.getElementById('modal-confirm').classList.remove('hidden');
+            document.getElementById('modal-confirm').classList.add('flex');
+        }
+
+        function hideConfirmModal() {
+            document.getElementById('modal-confirm').classList.add('hidden');
+            document.getElementById('modal-confirm').classList.remove('flex');
+        }
+
+        function showCheatModal(msg) {
+            document.getElementById('modal-cheat-msg').innerText = msg;
+            document.getElementById('modal-cheat').classList.remove('hidden');
+            document.getElementById('modal-cheat').classList.add('flex');
+        }
+
+        function hideCheatModal() {
+            document.getElementById('modal-cheat').classList.add('hidden');
+            document.getElementById('modal-cheat').classList.remove('flex');
+        }
+
+        // ==========================================
+        // SCORING & SUBMISSION ENGINE
+        // ==========================================
+        function calculateScore() {
+            let benar = 0;
+            questionsData.forEach((q, idx) => {
+                if (answers[idx] === q.answer) benar++;
+            });
+            const baseScore = benar * POIN_BENAR;
+            const penalty = cheatCount * POIN_CURANG_MINUS;
+            return {
+                benar,
+                salah: questionsData.length - benar,
+                skorAkhir: Math.max(0, baseScore - penalty) 
+            };
+        }
+
+        // Metode Triple Redundant Send sama persis dengan React
+        async function sendToGoogleSheets(payload) {
+            const payloadStr = JSON.stringify(payload);
+            
+            // JALUR 1: POST FETCH
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: payloadStr
+                });
+                return true; 
+            } catch (e) {
+                console.warn("Jalur 1 gagal. Mencoba Jalur 2...");
+            }
+
+            // JALUR 2: GET FETCH
+            try {
+                const getUrl = `${GOOGLE_SCRIPT_URL}?payload=${encodeURIComponent(payloadStr)}`;
+                await fetch(getUrl, { method: "GET", mode: "no-cors" });
+                return true; 
+            } catch (e) {
+                console.warn("Jalur 2 gagal. Mencoba Jalur 3...");
+            }
+
+            // JALUR 3: IMAGE BEACON
+            return new Promise((resolve) => {
+                const beaconUrl = `${GOOGLE_SCRIPT_URL}?payload=${encodeURIComponent(payloadStr)}&rand=${Math.random()}`;
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => { setTimeout(() => resolve(true), 1200); };
+                img.src = beaconUrl;
+            });
+        }
+
+        async function processSubmit() {
+            hideConfirmModal();
+            showView('view-submitting');
+            
+            const { benar, skorAkhir } = calculateScore();
+            const charMap = ["A", "B", "C", "D"];
+            let formattedAnswers = {};
+            
+            questionsData.forEach((q, idx) => {
+                formattedAnswers[`No ${idx + 1}`] = answers[idx] !== undefined ? charMap[answers[idx]] : "Kosong";
+            });
+
+            const payload = {
+                nama: studentData.nama,
+                jk: studentData.jk,
+                kelas: studentData.kelas,
+                token: studentData.token,
+                benar: benar,
+                curang: cheatCount,
+                skorAkhir: skorAkhir,
+                jawaban: formattedAnswers
+            };
+
+            const textBackup = `NAMA: ${payload.nama}\nKELAS: ${payload.kelas}\nJK: ${payload.jk}\nSKOR: ${payload.skorAkhir}\nBENAR: ${payload.benar}\nCURANG: ${payload.curang}x\nJAWABAN: ${JSON.stringify(formattedAnswers)}`;
+            backupData = textBackup;
+            document.getElementById('backup-textarea').value = textBackup;
+
+            const success = await sendToGoogleSheets(payload);
+            
+            if (success) {
+                // Hapus data lokal agar bersih
+                localStorage.removeItem(STORAGE_KEY);
+                document.getElementById('success-nama').innerText = studentData.nama;
+                document.getElementById('success-kelas').innerText = studentData.kelas;
+                showView('view-success');
+            } else {
+                showView('view-error');
+            }
+        }
+
+        function copyBackup() {
+            const textarea = document.getElementById('backup-textarea');
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                document.getElementById('copy-btn-text').innerText = "Berhasil Disalin!";
+                setTimeout(() => {
+                    document.getElementById('copy-btn-text').innerText = "Salin Kode Jawaban";
+                }, 3000);
+            } catch (err) {
+                alert("Gagal menyalin otomatis. Silakan blokir teks secara manual lalu salin.");
+            }
+        }
+
+        // JALANKAN SAAT HALAMAN DIMUAT
+        window.addEventListener('DOMContentLoaded', () => {
+            loadProgress();
+        });
+
+    </script>
+</body>
+</html>
